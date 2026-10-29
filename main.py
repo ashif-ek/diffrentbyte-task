@@ -1,15 +1,18 @@
-from fastapi import FastApi, Form 
+from fastapi import FastAPI, Depends
+from sqlalchemy.orm import Session
+
+from database import Base, engine, db_get
 from models import Forms
-from database import Depends, db_get, engine
+from schemas import FormCreate
 
 Base.metadata.create_all(bind=engine)
 
-app = FastApi()
+app = FastAPI()
 
 
 @app.post("/forms")
-def form_create(data: Forms, db: Session = Depends(de_get) ):
-    form = Forms(**data.model_dump)
+def create_form(data: FormCreate, db: Session = Depends(db_get)):
+    form = Forms(**data.model_dump())
     db.add(form)
     db.commit()
     db.refresh(form)
